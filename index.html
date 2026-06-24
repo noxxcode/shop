@@ -10,17 +10,20 @@
 <style>
 body {
   margin: 0;
-  font-family: Inter, sans-serif;
+  font-family: Inter;
   background: #0b0f1a;
   color: white;
 }
 
+/* HEADER */
 header {
-  background: #11182a;
-  padding: 15px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 15px 20px;
+  background: #11182a;
+  position: sticky;
+  top: 0;
 }
 
 .logo {
@@ -28,52 +31,24 @@ header {
   font-weight: 700;
 }
 
-.search {
+input {
   width: 40%;
-}
-
-.search input {
-  width: 100%;
   padding: 10px;
   border-radius: 10px;
   border: none;
-  outline: none;
 }
 
-.cart {
-  background: #5b7cff;
-  padding: 10px 15px;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
+/* HERO */
 .hero {
-  padding: 40px;
   text-align: center;
+  padding: 30px;
 }
 
-.hero h1 {
-  font-size: 36px;
-}
-
-.categories {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin: 20px 0;
-}
-
-.cat {
-  padding: 8px 14px;
-  background: #1a2440;
-  border-radius: 20px;
-  cursor: pointer;
-}
-
+/* PRODUCTS */
 .products {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  gap: 15px;
   padding: 20px;
 }
 
@@ -81,14 +56,14 @@ header {
   background: #151d33;
   padding: 15px;
   border-radius: 15px;
-  transition: 0.3s;
+  transition: 0.2s;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: scale(1.03);
 }
 
-.card img {
+img {
   width: 100%;
   border-radius: 10px;
 }
@@ -109,18 +84,37 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  background: #3f63ff;
-}
-
-.cart-box {
+/* CART */
+.cart {
   position: fixed;
-  right: 20px;
-  bottom: 20px;
+  right: 15px;
+  bottom: 15px;
   background: #11182a;
   padding: 15px;
+  width: 260px;
   border-radius: 15px;
-  width: 250px;
+}
+
+.cart h3 {
+  margin-top: 0;
+}
+
+.small {
+  font-size: 12px;
+  color: gray;
+}
+
+.order {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order input {
+  width: 100%;
+  background: #0b0f1a;
+  color: white;
 }
 </style>
 </head>
@@ -129,30 +123,29 @@ button:hover {
 
 <header>
   <div class="logo">🔥 NovaShop</div>
-
-  <div class="search">
-    <input type="text" placeholder="Поиск товаров..." oninput="search(this.value)">
-  </div>
-
-  <div class="cart">Корзина: <span id="cartCount">0</span></div>
+  <input type="text" placeholder="Поиск..." oninput="search(this.value)">
+  <div>Корзина: <span id="count">0</span></div>
 </header>
 
 <div class="hero">
-  <h1>Лучшие товары по лучшим ценам</h1>
-  <p>Доставка • Гарантия • Быстрый заказ</p>
-</div>
-
-<div class="categories">
-  <div class="cat" onclick="filter('all')">Все</div>
-  <div class="cat" onclick="filter('tech')">Гаджеты</div>
-  <div class="cat" onclick="filter('home')">Дом</div>
+  <h1>Лучшие товары</h1>
+  <p>Доставка • Оплата при получении</p>
 </div>
 
 <div class="products" id="products"></div>
 
-<div class="cart-box">
+<div class="cart">
   <h3>Корзина</h3>
-  <div id="cart"></div>
+  <div id="cartItems"></div>
+  <p><b>Итого: <span id="total">0</span> ₴</b></p>
+
+  <div class="order">
+    <input id="name" placeholder="Имя">
+    <input id="phone" placeholder="Телефон">
+    <button onclick="order()">Оформить заказ</button>
+  </div>
+
+  <p class="small">Мы свяжемся с вами</p>
 </div>
 
 <script>
@@ -164,39 +157,58 @@ const products = [
 
 let cart = [];
 
-function render(list = products){
+function render(list=products){
   document.getElementById("products").innerHTML =
-  list.map(p=>`
+  list.map((p,i)=>`
     <div class="card">
       <img src="${p.img}">
       <h3>${p.name}</h3>
       <div class="price">${p.price} ₴</div>
-      <button onclick="add('${p.name}', ${p.price})">В корзину</button>
+      <button onclick="add(${i})">В корзину</button>
     </div>
   `).join("");
 }
 
-function add(name, price){
-  cart.push({name, price});
-  document.getElementById("cartCount").innerText = cart.length;
-  updateCart();
+function add(i){
+  cart.push(products[i]);
+  update();
 }
 
-function updateCart(){
-  document.getElementById("cart").innerHTML =
-  cart.map(i=>`<div>${i.name} - ${i.price} ₴</div>`).join("");
+function update(){
+  document.getElementById("count").innerText = cart.length;
+
+  document.getElementById("cartItems").innerHTML =
+    cart.map(i=>`<div>${i.name} - ${i.price} ₴</div>`).join("");
+
+  document.getElementById("total").innerText =
+    cart.reduce((s,i)=>s+i.price,0);
 }
 
-function search(val){
-  render(products.filter(p=>p.name.toLowerCase().includes(val.toLowerCase())));
+function search(v){
+  render(products.filter(p=>p.name.toLowerCase().includes(v.toLowerCase())));
 }
 
-function filter(cat){
-  if(cat==="all") render();
-  else render(products.filter(p=>p.cat===cat));
+function order(){
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+
+  if(!name || !phone){
+    alert("Заполни данные");
+    return;
+  }
+
+  let text = "Новый заказ:\n";
+  cart.forEach(i=>{
+    text += i.name + " - " + i.price + "₴\n";
+  });
+
+  text += "\nИмя: " + name + "\nТел: " + phone;
+
+  alert(text);
 }
 
 render();
+update();
 </script>
 
 </body>
