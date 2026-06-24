@@ -1,95 +1,203 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>My Shop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial;
-      margin: 0;
-      background: #0f0f1a;
-      color: white;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NovaShop</title>
 
-    header {
-      padding: 20px;
-      background: #15152a;
-      font-size: 24px;
-      font-weight: bold;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    .container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      padding: 20px;
-      gap: 15px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  background: #0b0f1a;
+  color: white;
+}
 
-    .card {
-      background: #1b1b2e;
-      width: 220px;
-      border-radius: 12px;
-      padding: 15px;
-    }
+header {
+  background: #11182a;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    .card img {
-      width: 100%;
-      border-radius: 10px;
-    }
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+}
 
-    .price {
-      color: #4cff9a;
-      font-weight: bold;
-      margin: 10px 0;
-    }
+.search {
+  width: 40%;
+}
 
-    button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      background: #5b7cff;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+.search input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+}
 
-    button:hover {
-      background: #3f63ff;
-    }
-  </style>
+.cart {
+  background: #5b7cff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.hero {
+  padding: 40px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 36px;
+}
+
+.categories {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.cat {
+  padding: 8px 14px;
+  background: #1a2440;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+
+.card {
+  background: #151d33;
+  padding: 15px;
+  border-radius: 15px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.price {
+  color: #4cff9a;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #5b7cff;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3f63ff;
+}
+
+.cart-box {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  background: #11182a;
+  padding: 15px;
+  border-radius: 15px;
+  width: 250px;
+}
+</style>
 </head>
 
 <body>
 
-<header>🔥 My Dropshipping Shop</header>
+<header>
+  <div class="logo">🔥 NovaShop</div>
 
-<div class="container">
-
-  <div class="card">
-    <img src="https://via.placeholder.com/220" />
-    <h3>Наушники</h3>
-    <div class="price">1200 ₴</div>
-    <button>Заказать</button>
+  <div class="search">
+    <input type="text" placeholder="Поиск товаров..." oninput="search(this.value)">
   </div>
 
-  <div class="card">
-    <img src="https://via.placeholder.com/220" />
-    <h3>Смарт-часы</h3>
-    <div class="price">1800 ₴</div>
-    <button>Заказать</button>
-  </div>
+  <div class="cart">Корзина: <span id="cartCount">0</span></div>
+</header>
 
-  <div class="card">
-    <img src="https://via.placeholder.com/220" />
-    <h3>Колонка</h3>
-    <div class="price">999 ₴</div>
-    <button>Заказать</button>
-  </div>
-
+<div class="hero">
+  <h1>Лучшие товары по лучшим ценам</h1>
+  <p>Доставка • Гарантия • Быстрый заказ</p>
 </div>
+
+<div class="categories">
+  <div class="cat" onclick="filter('all')">Все</div>
+  <div class="cat" onclick="filter('tech')">Гаджеты</div>
+  <div class="cat" onclick="filter('home')">Дом</div>
+</div>
+
+<div class="products" id="products"></div>
+
+<div class="cart-box">
+  <h3>Корзина</h3>
+  <div id="cart"></div>
+</div>
+
+<script>
+const products = [
+  {name:"Наушники", price:1200, img:"https://via.placeholder.com/300", cat:"tech"},
+  {name:"Часы", price:1800, img:"https://via.placeholder.com/300", cat:"tech"},
+  {name:"Лампа", price:800, img:"https://via.placeholder.com/300", cat:"home"},
+];
+
+let cart = [];
+
+function render(list = products){
+  document.getElementById("products").innerHTML =
+  list.map(p=>`
+    <div class="card">
+      <img src="${p.img}">
+      <h3>${p.name}</h3>
+      <div class="price">${p.price} ₴</div>
+      <button onclick="add('${p.name}', ${p.price})">В корзину</button>
+    </div>
+  `).join("");
+}
+
+function add(name, price){
+  cart.push({name, price});
+  document.getElementById("cartCount").innerText = cart.length;
+  updateCart();
+}
+
+function updateCart(){
+  document.getElementById("cart").innerHTML =
+  cart.map(i=>`<div>${i.name} - ${i.price} ₴</div>`).join("");
+}
+
+function search(val){
+  render(products.filter(p=>p.name.toLowerCase().includes(val.toLowerCase())));
+}
+
+function filter(cat){
+  if(cat==="all") render();
+  else render(products.filter(p=>p.cat===cat));
+}
+
+render();
+</script>
 
 </body>
 </html>
